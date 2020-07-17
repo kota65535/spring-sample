@@ -1,0 +1,18 @@
+pluginManagement {
+    repositories {
+        gradlePluginPortal()
+    }
+    plugins {
+        id "org.springframework.boot" version springBootPlugin
+        id "io.spring.dependency-management" version dependencyManagementPlugin
+        id "io.freefair.lombok" version lombokPlugin
+        id "com.github.node-gradle.node" version nodeGradlePlugin
+        id "org.openapi.generator" version openApiGeneratorPlugin
+    }
+}
+
+rootProject.name = "spring-sample"
+include "sample-core-app"
+include "sample-core-spec"
+include 'sample-core-db'
+

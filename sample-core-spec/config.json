@@ -1,0 +1,5 @@
+{
+  "interfaceOnly": true,
+  "useOneOfInterfaces": true,
+  "addOneOfInterfaceImports": true
+}

@@ -1,0 +1,58 @@
+plugins {
+    id 'java'
+    id 'io.spring.dependency-management'
+    id "com.github.node-gradle.node"
+    id "org.openapi.generator"
+}
+
+sourceSets {
+    main {
+        java {
+            srcDirs = ['build/generate-resources/main/src/main/java']
+        }
+    }
+}
+
+dependencies {
+    compileOnly "org.springframework.boot:spring-boot-starter-web"
+    compileOnly "org.openapitools:jackson-databind-nullable"
+    compileOnly "jakarta.validation:jakarta.validation-api"
+    compileOnly "com.fasterxml.jackson.core:jackson-annotations"
+    compileOnly "io.swagger:swagger-annotations"
+}
+
+// merge separated OpenAPI docs into single one
+task mergeSpec(type: NpxTask) {
+    dependsOn processResources, npmInstall
+    command = 'openapi-merger'
+    args = ['-i', "${sourceSets.main.resources.srcDirs.first()}/openapi.yaml",
+            '-o', "${sourceSets.main.output.resourcesDir}/openapi-merged.yaml",
+    ]
+    inputs.dir(sourceSets.main.resources.srcDirs.first())
+//    outputs.file("${sourceSets.main.output.resourcesDir}/openapi-merged.yaml")
+}
+
+// generate HTML doc from merged OpenAPI doc
+task generateRedoc(type: NpxTask) {
+    dependsOn mergeSpec
+    command = 'redoc-cli'
+    args = ['bundle', "${sourceSets.main.output.resourcesDir}/openapi-merged.yaml",
+            '-o', "${sourceSets.main.output.resourcesDir}/redoc-static.html"
+    ]
+    inputs.file("${sourceSets.main.output.resourcesDir}/openapi-merged.yaml")
+}
+
+// generate codes from merged OpenAPI doc
+openApiGenerate {
+    generatorName = 'spring'
+    configFile = "${project.projectDir}/config.json"
+    inputSpec = "${sourceSets.main.output.resourcesDir}/openapi-merged.yaml"
+    apiPackage = "${project.group}.api"
+    invokerPackage = "${project.group}.invoker"
+    modelPackage = "${project.group}.model"
+}
+
+
+tasks.openApiGenerate.dependsOn mergeSpec
+compileJava.dependsOn tasks.openApiGenerate
+

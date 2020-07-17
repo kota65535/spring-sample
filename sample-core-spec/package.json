@@ -1,0 +1,7 @@
+{
+  "name": "doorman-catalog-spec",
+  "version": "1.0.0",
+  "dependencies": {
+    "openapi-merger": "^0.2.0"
+  }
+}

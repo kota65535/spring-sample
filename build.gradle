@@ -1,0 +1,46 @@
+plugins {
+    id 'java'
+    id 'io.spring.dependency-management'
+}
+
+allprojects {
+    apply plugin: 'java'
+    apply plugin: 'io.spring.dependency-management'
+
+    group 'org.example'
+    version '1.0-SNAPSHOT'
+    sourceCompatibility = 1.8
+
+    repositories {
+        mavenCentral()
+        maven {
+            url "https://alb-nexus.dev.aip.sreitdev.com/repository/maven-snapshots"
+            credentials {
+                username = "admin"
+                password = "admin"
+            }
+        }
+    }
+}
+
+subprojects {
+    dependencyManagement {
+        dependencies {
+            dependency "org.springframework.boot:spring-boot-starter-web:${springBootPlugin}"
+            dependency "com.google.guava:guava:${guava}"
+            dependency "org.springframework.data:spring-data-jdbc:${springDataJdbc}"
+
+            // spec
+            dependency "org.openapitools:jackson-databind-nullable:${jacksonDatabindNullable}"
+            dependency "jakarta.validation:jakarta.validation-api:${jakartaValidationApi}"
+            dependency "com.fasterxml.jackson.core:jackson-annotations:${jacksonAnnotations}"
+            dependency "io.swagger:swagger-annotations:${swaggerAnnotations}"
+
+            // db
+            dependency "com.opencsv:opencsv:${openCsv}"
+            dependency "xyz.downgoon:snowflake:${snowFlake}"
+            dependency "com.beust:jcommander:${jcommander}"
+        }
+    }
+}
+
