@@ -10,7 +10,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import xyz.downgoon.snowflake.Snowflake;
 
 import java.io.BufferedReader;
 import java.net.URL;
@@ -32,18 +31,14 @@ public class Application implements CommandLineRunner {
   private static final Logger logger = LoggerFactory.getLogger(Application.class);
 
   private final PetRepository repository;
-  private final Snowflake snowflake;
 
   public Application(PetRepository repository) {
     this.repository = repository;
-    this.snowflake = new Snowflake(0, 0);
   }
 
   @Override
   public void run(String... args) throws Exception {
-
-    Stopwatch sw = Stopwatch.createStarted();
-
+    // load CSV
     URL url = Resources.getResource("data.csv");
     BufferedReader reader = Resources.asCharSource(url, StandardCharsets.UTF_8)
             .openBufferedStream();
@@ -52,22 +47,18 @@ public class Application implements CommandLineRunner {
             .build()
             .parse();
 
+    // convert to entity
     List<PetEntity> entities = models.stream()
             .map(m -> PetEntity.builder()
-                    .id(generateId())
                     .name(m.getName())
                     .tag(m.getTag())
                     .build())
             .collect(Collectors.toList());
 
-    logger.info("{} entries to imported.", entities.size());
-
+    // insert them all
+    Stopwatch sw = Stopwatch.createStarted();
+    logger.info("{} entries to import.", entities.size());
     repository.bulkInsert(entities, PetEntity.class);
-
     logger.info("{} entries imported in {} sec.", entities.size(), sw.elapsed(TimeUnit.SECONDS));
-  }
-
-  private Long generateId() {
-    return snowflake.nextId();
   }
 }

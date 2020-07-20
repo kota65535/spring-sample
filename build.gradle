@@ -38,7 +38,6 @@ subprojects {
 
             // db
             dependency "com.opencsv:opencsv:${openCsv}"
-            dependency "xyz.downgoon:snowflake:${snowFlake}"
             dependency "com.beust:jcommander:${jcommander}"
         }
     }
